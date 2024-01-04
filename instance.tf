@@ -29,6 +29,32 @@ resource "aws_security_group" "poc-default-ins-sg" {
   }
 }
 
+resource "aws_security_group" "external-ips-sg" {
+  vpc_id      = local.vpc_id
+  name        = "external-ips-sg"
+  description = "external-ips-sg"
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["${module.default-ins.out.public_ip}/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "external-ips-sg"
+  }
+
+  depends_on = [module.default-ins]
+}
+
 ## Freetier는 cpu 옵션을 사용할수 없습니다.
 module "default-ins" {
   source = "zkfmapf123/simpleEC2/lee"
@@ -36,7 +62,12 @@ module "default-ins" {
   instance_name      = "default-ins"
   instance_region    = "ap-northeast-2a"
   instance_subnet_id = local.subnet_ids[0]
-  instance_sg_ids    = [aws_security_group.poc-default-ins-sg.id, aws_security_group.poc-rds-client-sg.id]
+
+  ## Proxy-sg를 사용할 경우
+  instance_sg_ids = [aws_security_group.poc-default-ins-sg.id, aws_security_group.poc-rds-client-sg.id]
+
+  ## External-ip를 사용할 경우
+  # instance_sg_ids    = [aws_security_group.poc-default-ins-sg.id]
 
   instance_ip_attr = {
     is_public_ip  = true

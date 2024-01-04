@@ -57,16 +57,18 @@ resource "aws_db_instance" "poc-rds" {
   deletion_protection             = false
   enabled_cloudwatch_logs_exports = []
   engine_version                  = "8.0.35"
-  vpc_security_group_ids          = [aws_security_group.poc-rds-sg.id, aws_security_group.poc-rds-client-sg.id]
-  max_allocated_storage           = 1000
-  copy_tags_to_snapshot           = true
-  skip_final_snapshot             = true
-  username                        = "root"
-  password                        = "12341234"
-  publicly_accessible             = true
-  db_subnet_group_name            = aws_db_subnet_group.subnet-group.name
-  storage_type                    = "gp2"
-  allocated_storage               = 100
+
+  vpc_security_group_ids = [aws_security_group.poc-rds-sg.id, aws_security_group.poc-rds-client-sg.id, aws_security_group.external-ips-sg.id]
+
+  max_allocated_storage = 1000
+  copy_tags_to_snapshot = true
+  skip_final_snapshot   = true
+  username              = "root"
+  password              = "12341234"
+  publicly_accessible   = true
+  db_subnet_group_name  = aws_db_subnet_group.subnet-group.name
+  storage_type          = "gp2"
+  allocated_storage     = 100
 
   iam_database_authentication_enabled = false
   customer_owned_ip_enabled           = false
