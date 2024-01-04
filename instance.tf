@@ -10,6 +10,13 @@ resource "aws_security_group" "poc-default-ins-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -29,7 +36,7 @@ module "default-ins" {
   instance_name      = "default-ins"
   instance_region    = "ap-northeast-2a"
   instance_subnet_id = local.subnet_ids[0]
-  instance_sg_ids    = [aws_security_group.poc-default-ins-sg.id]
+  instance_sg_ids    = [aws_security_group.poc-default-ins-sg.id, aws_security_group.poc-rds-client-sg.id]
 
   instance_ip_attr = {
     is_public_ip  = true
